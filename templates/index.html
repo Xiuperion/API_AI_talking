@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat with OpenAI</title>
+    <style>
+        body {
+            /* Replace 'your-image-url' with the URL of your image */
+            /* background-image: url('static/images/miku.png'); */
+            background-size: auto;
+            background-repeat: no-repeat;
+            background-position: center top;
+            /* Set a semi-transparent background color */
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50; /* Green background */
+            border: none;
+            color: white; /* White text */
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px; /* Rounded corners */
+    }
+
+        button:hover {
+            background-color: #45a049; /* Darker green when mouse hovers over */
+    }
+        #chat {
+            width: 50%;
+            margin: 0 auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        #input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .user {
+            text-align: right;
+            background-color: #e1f7d5;
+        }
+        .response {
+            text-align: left;
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat">
+        <div id="conversation"></div>
+        <h1>Chat with us!</h1>
+        <input type="text" id="input" placeholder="Type your message here..." />
+        <button>Send Message</button>
+    </div>
+    <script>
+        const inputField = document.getElementById('input');
+        const conversationDiv = document.getElementById('conversation');
+        const button = document.querySelector('button');
+
+        inputField.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                processInput();
+            }
+
+        button.addEventListener('click', function(){
+            processInput();
+        });
+
+            function processInput(){
+                const userMessage = inputField.value;
+                addMessage(userMessage, 'user');
+                inputField.value = '';
+            
+
+                // Call the backend API to get the response from OpenAI
+                fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    addMessage(data.response, 'response');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+        function addMessage(message, className) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', className);
+            messageDiv.textContent = message;
+            conversationDiv.appendChild(messageDiv);
+            conversationDiv.scrollTop = conversationDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>
